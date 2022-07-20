@@ -13,7 +13,7 @@ def insertionSort(screen, ar):
     return ar
 
 # Bubble sort 
-def bubbleSort(ar):
+def bubbleSort(screen, ar):
     length = len(ar)
     for i in range(length):
         for j in range(length - i):
@@ -23,10 +23,11 @@ def bubbleSort(ar):
                 if a > b:
                     ar[j] = b
                     ar[j + 1] = a
+            drawAr(screen, ar)
     return ar
 
 # Quick Sort 
-def quickSort(ar): 
+def quickSort(screen, ar): 
     if len(ar) < 2:
         return ar 
     else: 
@@ -42,24 +43,25 @@ def createAr(len):
     return ar
 
 def drawAr(screen, ar):
+    # time.sleep(.05)
+
     # for ever number in the array, draw a rectangle of the same height
     x_pos = 0
     y_pos = 990
-    width = 5
-    height = 10
+    width = 4
+    height = 100
 
+    # this is resetting the screen everytime it's drawn
     screen.fill((0, 0, 0))
 
     # make the rectangle variable
     for num in ar:
-        x_pos += width + 1
-        # height += num
-        # y_pos -= num
+        x_pos += width
         rectangle = pygame.Rect(x_pos, y_pos-num, width, num+height)
-        pygame.draw.rect(screen, (255,255,255), rectangle)
+        pygame.draw.rect(screen, (255, 255, 255), rectangle)
         
-        # This is what allows things to show up on screen 
-        pygame.display.flip()
+    # This is what allows things to show up on screen 
+    pygame.display.flip()
 
 def main():
 
@@ -68,13 +70,6 @@ def main():
     # Set up the drawing window
     screen = pygame.display.set_mode([1000,1000])
 
-    # Run until the user asks to quit
-    LENGTH = 100
-
-    ar = createAr(LENGTH)
-    random.shuffle(ar)
-
-    insertionSort(screen, ar)
 
     running = True
     while running:
@@ -84,34 +79,21 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        # Fill the background with white
+        # Run until the user asks to quit
+        LENGTH = 250
 
-        # for num in ar:
-        #     x_pos += 10
+        ar = createAr(LENGTH)
+        random.shuffle(ar)
 
 
+        insertStart = time.time()
+        insertionSort(screen, ar)
+        insertEnd = time.time()
+        print(f'The time to do Insertion Sort was: {insertEnd - insertStart}\n')
 
-        # insertStart = time.time()
-        # insertionSort(ar)
-        # insertEnd = time.time()
-        # print(f'The time to do Insertion Sort was: {insertEnd - insertStart}\n')
-
-        # # scramble the recently sorted list
-        # random.shuffle(ar)
-
-        # bubbleStart = time.time()
-        # bubbleSort(ar)
-        # bubbleEnd = time.time()
-        # print(f'The time to do Bubble Sort was: {bubbleEnd - bubbleStart}\n')
-        
-        # # scramble the recently sorted list
-        # random.shuffle(ar)
-
-        # quickStart = time.time()
-        # quickSort(ar)
-        # quickEnd = time.time()
-        # print(f'The time to do Quick Sort was {quickEnd - quickStart}\n')
-
+        # once sorted, end the process
+        time.sleep(5)
+        running = False 
 
     # time to quit
     pygame.quit()
