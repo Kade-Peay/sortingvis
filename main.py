@@ -1,13 +1,15 @@
 import time 
 import random
+from numpy import insert
 import pygame
 
 # Insertion sort
-def insertionSort(ar):
+def insertionSort(screen, ar):
     for i in range(1, len(ar)):
         while ar[i-1] > ar[i] and i > 0:
             ar[i-1], ar[i] = ar[i], ar[i-1]
             i -= 1
+            drawAr(screen, ar)
     return ar
 
 # Bubble sort 
@@ -39,39 +41,41 @@ def createAr(len):
         ar.append(i)
     return ar
 
+def drawAr(screen, ar):
+    # for ever number in the array, draw a rectangle of the same height
+    x_pos = 0
+    y_pos = 990
+    width = 5
+    height = 10
+
+    screen.fill((0, 0, 0))
+
+    # make the rectangle variable
+    for num in ar:
+        x_pos += width + 1
+        # height += num
+        # y_pos -= num
+        rectangle = pygame.Rect(x_pos, y_pos-num, width, num+height)
+        pygame.draw.rect(screen, (255,255,255), rectangle)
+        
+        # This is what allows things to show up on screen 
+        pygame.display.flip()
+
 def main():
 
     pygame.init()
 
     # Set up the drawing window
-
     screen = pygame.display.set_mode([1000,1000])
 
     # Run until the user asks to quit
-    LENGTH = 50
+    LENGTH = 100
 
     ar = createAr(LENGTH)
     random.shuffle(ar)
 
-    screen.fill((0, 0, 0))
+    insertionSort(screen, ar)
 
-
-    # for ever number in the array, draw a rectangle of the same height
-    x_pos = 0
-    y_pos = 990
-    width = 15
-    height = 10
-
-    # make the rectangle variable
-    for num in ar:
-        x_pos += 16
-        height += num
-        y_pos -= num
-        rectangle = pygame.Rect(x_pos, y_pos, width, height)
-        pygame.draw.rect(screen, (255,255,255), rectangle)
-        
-        # This is what allows things to show up on screen 
-        pygame.display.flip()
     running = True
     while running:
 
