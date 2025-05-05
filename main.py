@@ -9,7 +9,7 @@ def insertionSort(screen, ar):
         while ar[i-1] > ar[i] and i > 0:
             ar[i-1], ar[i] = ar[i], ar[i-1]
             i -= 1
-            drawAr(screen, ar)
+            drawAr(screen, ar, False)
     return ar
 
 # Bubble sort 
@@ -23,29 +23,53 @@ def bubbleSort(screen, ar):
                 if a > b:
                     ar[j] = b
                     ar[j + 1] = a
-            drawAr(screen, ar)
+            drawAr(screen, ar, False)
     return ar
 
 # Quick Sort 
-def quickSort(screen, ar): 
-    if len(ar) < 2:
-        return ar 
-    else: 
-        pivot = ar[0]
-        less = [i for i in ar[1:] if i <= pivot]
-        greater = [i for i in ar[1:] if i > pivot]
-        return quickSort(less) + [pivot] + quickSort(greater)
+def partition(array, low, high, screen):
 
+    # Choose the rightmost element as pivot
+    pivot = array[high]
+
+    # pointer for greater element 
+    i = low - 1
+    for j in range(low, high):
+        if array[j] <= pivot:
+            i = i + 1 
+            (array[i], array[j]) = (array[j], array[i])
+
+            # Draw after each swap
+            drawAr(screen, array, True)
+
+    (array[i + 1], array[high]) = (array[high], array[i + 1])
+    
+    # Draw after the final swap
+    drawAr(screen, array, True)
+
+    return i + 1
+
+def quickSort(array, low, high, screen):
+    if low < high:
+        pi = partition(array, low, high, screen)
+        quickSort(array, low, pi - 1, screen) 
+        quickSort(array, pi + 1, high, screen)
+
+# Array creation
 def createAr(len):
     ar = []
     for i in range(1, len+1):
         ar.append(i)
     return ar
 
-def drawAr(screen, ar):
-    # time.sleep(.05)
+# Draw array to the screen
+def drawAr(screen, ar, delay):
 
-    # for ever number in the array, draw a rectangle of the same height
+    # only turn on the delay for quick sort
+    if delay:
+        time.sleep(.01) # incredibly small delay
+
+    # for every number in the array, draw a rectangle of the same height
     x_pos = 0
     y_pos = 990
     width = 4
@@ -82,10 +106,11 @@ def main():
         # Run until the user asks to quit
         LENGTH = 250
 
+        # Create the array and randomize
         ar = createAr(LENGTH)
         random.shuffle(ar)
 
-
+        # insertion sort
         insertStart = time.time()
         insertionSort(screen, ar)
         insertEnd = time.time()
@@ -94,6 +119,25 @@ def main():
         # once sorted, end the process
         time.sleep(5)
         running = False 
+
+        # reset the array for bubble sort
+        random.shuffle(ar)
+
+        # bubble sort
+        bubbleStart = time.time()
+        bubbleSort(screen, ar)
+        bubbleEnd = time.time()
+        print(f'The time to do Bubble Sort was: {bubbleEnd - bubbleStart}\n')
+
+        # reset the array for quick sort 
+        random.shuffle(ar)
+
+        # quick sort 
+        quickStart = time.time()
+        quickSort(ar, 0, len(ar) - 1, screen)
+        quickEnd = time.time()
+        print(f'The time to do a Quick Sort was: {quickEnd - quickStart}\n')
+
 
     # time to quit
     pygame.quit()
