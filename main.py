@@ -6,8 +6,9 @@ import pygame
 # Initialize the pygame font 
 pygame.font.init()
 textFont = pygame.font.SysFont('Arial', 30)
-
+#
 # Insertion sort
+#
 def insertionSort(screen, ar):
     # Run the sorting algorithm
     for i in range(1, len(ar)):
@@ -17,7 +18,9 @@ def insertionSort(screen, ar):
             drawAr(screen, ar, 'Insertion Sort')
     return ar
 
+#
 # Bubble sort 
+#
 def bubbleSort(screen, ar):
     # Run sorting algorithm
     length = len(ar)
@@ -32,7 +35,9 @@ def bubbleSort(screen, ar):
             drawAr(screen, ar, 'Bubble Sort')
     return ar
 
+#
 # Quick Sort 
+#
 def partition(array, low, high, screen):
 
     # Choose the rightmost element as pivot
@@ -62,46 +67,114 @@ def quickSort(array, low, high, screen):
         quickSort(array, low, pi - 1, screen) 
         quickSort(array, pi + 1, high, screen)
 
+#
+# Radix Sort
+#
+def countingSort(array, exp1, screen):
+    n = len(array)
+    
+    # The output array eleements that will have sorted arr 
+    output = [0] * n
+
+    # initialize coutn array as 0 
+    count = [0] * (10) 
+
+    # Store the count of occurences in count[]
+    for i in range(0, n):
+        index = (array[i]/exp1) 
+        count[int((index) % 10)] += 1
+
+    # Change count[i] so that count[i] now contains actual
+    # position of this digit in output[]
+    for i in range(1, 10):
+        count[i] += count[i - 1]
+
+    # Build the output array 
+    i = n - 1
+    while i >= 0:
+        index = (array[i] / exp1)
+        output[count[int((index) % 10)] - 1] = array[i]
+        count[int((index) % 10)] -= 1 
+        i -= 1 
+
+    # Copy the output array to array[]
+    i = 0 
+    for i in range(0, len(array)):
+        array[i] = output[i]
+
+    # Draw the array after sorting by this digit
+    drawAr(screen, array, 'Radix Sort', True)
+
+    
+def radixSort(screen, ar):
+    # Find the maximum 
+    max1 = max(ar)
+
+    # Do counting sort for every digit 
+    exp = 1 
+    while max1 // exp > 0:
+        countingSort(ar, exp, screen)
+        exp *= 10
+
+
+#
 # Array creation
+#
 def createAr(len):
     ar = []
     for i in range(1, len+1):
         ar.append(i)
     return ar
 
+#
 # Draw array to the screen
+#
 def drawAr(screen, ar, algorithmName, delay=False):
-
+    screen_width, screen_height = screen.get_size()
+    
     # Clear only the portion of the screen where the array gets drawn and not the algo name
-    screen.fill((0, 0, 0), (0, 50, 1000, 950)) # Clear below thetext 
+    screen.fill((0, 0, 0), (0, 50, screen_width, screen_height-50)) # Clear below the text 
 
     # Draw the name of the algorithm once it changes 
     if not hasattr(drawAr, 'lastAlgorithm') or drawAr.lastAlgorithm != algorithmName:
         # Clear the text area 
-        screen.fill((0, 0, 0), (0, 0, 1000, 50))
+        screen.fill((0, 0, 0), (0, 0, screen_width, 50))
         text = textFont.render(algorithmName, True, (255, 255, 255))
         screen.blit(text, (10,10))
+        drawAr.lastAlgorithm = algorithmName
 
-    # only turn on the delay for quick sort
-    if delay:
-        time.sleep(.01) # incredibly small delay
-
-    # for every number in the array, draw a rectangle of the same height
+    # Calculate dynamic width and spacing based on array length
+    max_bar_width = 4  # Maximum width we'd like for bars when array is small
+    spacing = 1  # Minimum spacing between bars
+    
+    # Calculate bar width to fit all bars on screen
+    total_bars = len(ar)
+    available_width = screen_width - (total_bars * spacing)
+    bar_width = max(1, min(max_bar_width, available_width / total_bars))
+    
+    # Adjust spacing if bars are too thin
+    if bar_width < 1:
+        bar_width = 1
+        spacing = max(0, (screen_width - (total_bars * bar_width)) / total_bars)
+    
+    # Calculate scaling factor for height
+    max_value = max(ar) if ar else 1
+    height_scale = (screen_height - 100) / max_value  # Leave some margin at the top
+    
+    # Draw each bar
     x_pos = 0
-    y_pos = 990
-    width = 4
-    height = 100
-
-
-    # make the rectangle variable
     for num in ar:
-        x_pos += width
-        rectangle = pygame.Rect(x_pos, y_pos-num, width, num+height)
+        bar_height = num * height_scale
+        rectangle = pygame.Rect(
+            x_pos, 
+            screen_height - bar_height,  # Position from bottom
+            bar_width, 
+            bar_height
+        )
         pygame.draw.rect(screen, (255, 255, 255), rectangle)
+        x_pos += bar_width + spacing
         
-    # This is what allows things to show up on screen 
     pygame.display.flip()
-
 
 def main():
 
@@ -121,7 +194,7 @@ def main():
                 running = False
 
         # Run until the user asks to quit
-        LENGTH = 250
+        LENGTH = 500
 
         # Create the array and randomize
         ar = createAr(LENGTH)
@@ -150,6 +223,15 @@ def main():
         quickSort(ar, 0, len(ar) - 1, screen)
         quickEnd = time.time()
         print(f'The time to do a Quick Sort was: {quickEnd - quickStart}\n')
+
+        # reset the array for radix sort
+        random.shuffle(ar)  
+
+        # radix sort
+        radixStart = time.time()
+        radixSort(screen, ar)
+        radixEnd = time.time()
+        print(f'The time to do a Radix Sort was: {radixEnd - radixStart}\n')
 
 
         # All done, end it
